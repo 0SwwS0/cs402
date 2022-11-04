@@ -191,28 +191,26 @@ void addNewEmployee(struct database *ptr)
 {
     int next = 0;
 
-    while (next < MINROW)
+    while (next < MINROW && ptr[next].id != NULL)
     {
-        printf("%s %s\n", ptr[next].fname, ptr[next].lname);
         next++;
-
     }
 
     // get new employee record
     printf( "Enter the first name of the employee: " ); 
-    scanf("%s", ptr[next+1].fname); 
+    scanf("%s", ptr[next].fname); 
     printf( "Enter the last name of the employee: " ); 
-    scanf("%s", ptr[next+1].lname); 
+    scanf("%s", ptr[next].lname); 
     printf( "Enter employee's salary (30000 to 150000): " ); 
-    scanf("%f", &ptr[next+1].salary); 
+    scanf("%f", &ptr[next].salary); 
     printf( "Enter the ID for this employee: " ); 
-    scanf("%d", &ptr[next+1].id); 
+    scanf("%d", &ptr[next].id); 
 
-    printf("%s %s\n", ptr[next+1].fname, ptr[next+1].lname);
-    for(int n = 0; n<MINROW; n++)
+    printf("Display updated DB info: \n");
+
+    for (size_t new = 0; new < next + 1; new++)
     {
-        printf("%s %s\n", ptr[n].fname, ptr[n].lname);
-
+        printf("%s %s %d %f\n", ptr[new].fname, ptr[new].lname, ptr[new].id, ptr[new].salary);
     }
 
 };
