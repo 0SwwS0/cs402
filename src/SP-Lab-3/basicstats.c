@@ -13,47 +13,192 @@ cs402-2022Fall-session2
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <stdbool.h>
 
-//---------------------- PROTOTYPE FUCTIONS -----------------------------//
+#define FILENAME_SIZE 1024
+#define MAX_LINE 100
+#define START 20;
 
-// The below function loads in the data from the data file and creates the DB
-float * CreateDB(char* datafile, int* xp, int* yp);
 
-// The below function is used to print out the statistical results of the data        
-void PrintDB (float arr[], int size, int total_size);
+//---------------------- FUCTION DECLARATION -----------------------------//
+
 
 // Used for sorting
-void Swap(float* xp, float* yp);
+void swap(float* xp, float* yp);
   
-// Function to perform Selection Sort on Employee ID in ascending order
-void SelectionSort(float arr[], int n);
+// Sort array ascending order
+void selectionSortAsce(float *dtptr, int n);
 
 // Takes in size of array that is already sorted an returns the median
-float median(float arr[], int size);
+float median(float *dtptr, int );
 
 // Returns mean of an array of floats
-double mean(float arr[], int size);
+double mean(float *dtptr, int total);
 
 /* Returns population standard deviation by using the following formula: 
    stddev = sqrt((sum((xi - mean)^2))/N)
 where the sum() goess from 1 to N, xi is the i-th element, N is 
 the number of elements in the data set, and sqrt() is the square root function.  */
-double stddev(float arr[], int size);
+double stddev(float *dtptr, int size);
 
 
-//------------------------------ Main -----------------------------------//
-/* Main function that displays the DB actions menu to the user until they choose to close out of the program. */
-int main(int argc, char *argv[])
+int main()
 {
-    if ( argc != 2 ) /* argc should be 2 for correct execution */
-    {
-        /* We print argv[0] assuming it is the program name */
-        printf( "usage: %s filename\n", argv[0] );
-    }
-    else
-    {
+    float *dtptr, *temp;
+    float number;
+    int start = 20;
+    char filename[FILENAME_MAX];
+    char line[MAX_LINE];
 
+    // Ask user for filename
+    printf("Enter the filename: ");
+    scanf("%s", filename);
+    
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Error opening file. \n");
+        return 1;
     }
+    
+    size_t increase = START;
+    size_t allocated = increase;
+    size_t total = 0;
+
+    // Dynamically allocate memory on the heap
+    dtptr = (float*)malloc(allocated * sizeof(float));
+
+    while (!feof(file) && !ferror(file))
+    {
+        fgets(line, sizeof(line), file);
+        number = strtof(line, NULL);
+        dtptr[total] = number;
+        total++;
+
+        if (total >= allocated)
+        {
+            
+            temp = (float*)malloc(allocated * sizeof(float));
+            memcpy(temp, dtptr, (allocated)* sizeof(float));
+
+            for (size_t t = 0; t < total; t++)
+            {
+                printf("The %zu data copied to temp is: %.2f\n", t, temp[t]);
+            }
+            
+            free(dtptr);
+
+            allocated += increase;
+
+            dtptr = (float*)malloc(allocated * sizeof(float));
+
+            memcpy(dtptr, temp, (allocated)* sizeof(float));
+
+            free(temp);
+
+        }
+        
+    }
+
+    fclose(file);
+
+    for (size_t i = 0; i < total; i++)
+    {
+        printf("Number %zu is: %.2f\n", i, dtptr[i] );
+    }
+    
+
+    printf("\nResults:\n");
+    printf("-----------\n");
+    
+    printf("Num values:\t\t%zu\n", total);
+    printf("Mean\t\t\t%.3lf\n", mean(dtptr, total));
+    printf("Median:\t\t\t%.3f\n", median(dtptr, total));
+    printf("Stddev:\t\t\t%.3lf\n", stddev(dtptr, total));
+    printf("Unsed array capacity: \t\t%lu\n", allocated - total);
 
     return 0;
 }
+
+void swap(float *xp, float *yp)
+{
+    float temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+void selectionSortAsce(float *dtptr, int n)
+{
+    int i, j, min_idx;
+
+    // one by one move boundary of unsorted subarray
+    for (i = 0; i < n-1; i++)
+    {
+        // Find the minimum element in the unsorted array
+        min_idx = i;
+        for (j = i+1; j < n; j++)
+            if (dtptr[j] < dtptr[min_idx])
+                min_idx = j;
+        // Swap the found minimum element with the first element
+        swap(&dtptr[min_idx], &dtptr[i]);
+    }
+}
+
+
+// Takes in size of array that is already sorted an returns the median
+float median(float *dtptr, int size)
+{
+    float median = 0;
+    // if number of elements are even
+    if(size % 2 == 0)
+    {
+        median = (dtptr[(size-1)/2] + dtptr[size/2])/2.0;
+    }
+    // if number of elements are odd
+    else
+    {
+        median = dtptr[size/2];
+    }
+    return median;
+}
+
+// Returns mean of an array of floats
+double mean(float *dtptr, int size)
+{
+    int counter;
+    float sum;
+    double avg;
+
+    sum = avg = 0;
+   
+    for(counter = 0; counter < size; counter++) 
+    {
+      sum = sum + dtptr[counter];
+    }
+   
+    avg = (double)sum / size;
+    return avg;
+}
+
+/* Returns population standard deviation by using the following formula: 
+   stddev = sqrt((sum((xi - mean)^2))/N)
+where the sum() goess from 1 to N, xi is the i-th element, N is 
+the number of elements in the data set, and sqrt() is the square root function.  */
+double stddev(float *dtptr, int size)
+{
+    int counter;
+    float sum;
+    double avg, stddev;
+
+    avg = mean(dtptr, size); 
+   
+    for(counter = 0; counter < size; counter++) 
+    {
+      sum = sum + ((dtptr[counter] - avg) * (dtptr[counter] - avg));
+    }
+   
+    stddev = (double) sqrt(sum / size);
+    return stddev;
+
+}
+
