@@ -18,3 +18,24 @@ When running out of capacity:
   Copy values from the old full array to the new array (and make the new array the current one).
   Free the space allocated by the old array by calling free.
   NOTE: there are other ways to do the memory allocation/re-allocation than described above, however for this assignment you have to use the method described above.
+  
+ Results on small.txt:
+ Results:
+-----------
+Num values:             14
+Mean                    73.522
+Median:                 175.459
+Stddev:                 88.897
+Unsed array capacity:           6
+
+--------------------------------------------
+ 
+ Results on large.txt:
+ Results:
+-----------
+Num values:             30
+Mean                    2035.600
+Median:                 1742.500
+Stddev:                 nan
+Unsed array capacity:           10
+ 
